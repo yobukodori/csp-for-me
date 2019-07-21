@@ -1,0 +1,38 @@
+{
+	"manifest_version" : 2,
+	"name": "CSP for Me",
+	"version": "0.1.0",
+	"author": "yobukodori",
+	"description": "Append directive-value to CSP header in HTTP response.",
+
+	"permissions" : [
+		"webRequest",
+		"webRequestBlocking",
+		"storage",
+		"<all_urls>"
+	],
+
+	"background" : {
+		"scripts" : ["util.js", "background.js"]
+	},
+
+	"browser_action" : {
+		"default_title" : "CSP for Me",
+		"default_icon"  : {
+			"48" : "icons/button-48.png"
+		}
+	},
+
+	"options_ui" : {
+		"page": "options.html",
+		"browser_style": true
+	},
+	
+	// The storage API will not work with a temporary addon ID. 
+	// Please add an explicit addon ID to your manifest.
+	"applications": {
+		"gecko": {
+			"id": "csp-for-me@yobukodori"
+		}
+	}
+}

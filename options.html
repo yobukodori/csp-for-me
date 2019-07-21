@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8">
+<style type="text/css">
+
+form, form input, form button, #log {
+	font-size: large;
+}
+
+form.mobile, form input.mobile, form button.mobile, #log.mobile {
+	font-size: x-large;
+}
+
+#toggle.on {
+	background-color: yellow;
+}
+
+#toggle.off {
+	background-color: gray;
+	font-weight: bold;
+	color: yellow;
+	border-color: black;
+}
+
+</style>
+</head>
+<body>
+    <form>
+        <div>
+            <input type="checkbox" id="enableAtStartup">
+            <label for="enableAtStartup">Enable at startup</label>
+            <input type="checkbox" id="printDebugInfo">
+            <label for="printDebugInfo">Print debug info</label>
+        </div>
+        <div style="border-style:solid;padding:0px 5px 5px;border-width:thin">
+                Applied URLs (Comma-Separated URL patterns)<br/>
+				e.g. *://*.a.com/*, *://*.b.com/*<br/>
+				ref. https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Match_patterns<br/>
+                <input type="text" id="appliedUrls" 
+					style="width:100%;margin-top:5px">
+        </div>
+        <div style="border-style:solid;padding:0px 5px 5px;border-width:thin">
+                CSP Directives<br/>
+                <input type="text" id="cspDirectives" 
+					style="width:100%;margin-top:5px">
+        </div>
+        <div style="margin-top:5px;">
+            <button type="submit">Save</button>
+			<button type="button" id="apply">Apply</button>
+			| <button type="button" id="getStatus">Get Status</button>
+			<button type="button" id="toggle">Toggle On/Off</button>
+		</div>
+		<div id="log">dummy for<br/><br/><br/><br/><br/><br/>
+			<br/><br/><br/>android</div>
+    </form>
+    <script src="util.js"></script>
+    <script src="options.js"></script>
+</body>
+</html>
