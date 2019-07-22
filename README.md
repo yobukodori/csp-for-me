@@ -12,4 +12,4 @@ Does nothing if CSP header doesn't exist in request.
 - **Save**: Save and apply settings.
 - **Apply**: Apply settings. (doesn't save settings).
 - **Get Status**: get current status and applied settings.
-- **On** enables this addon. **Off** disables this addon. Or clicking cross arrow icon in toolbar toggles enalbe/disable. 
+- **On** enables this addon. **Off** disables this addon. Or clicking cross arrow icon in toolbar toggles enable/disable. 
