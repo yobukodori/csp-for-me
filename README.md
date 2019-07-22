@@ -1,25 +1,15 @@
 # csp-for-me - firefox extension
-## Append directive or directive-value to the existing CSP(content-security-policy) header in HTTP response.
-## HTTPレスポンスの既存のCSPヘッダにディレクティブあるはディレクティブ値を追加する
-webページのセキュリティを高めることはいいことだが（自分で書いた）既知のスクリプトを
-自分の責任で読み込む自由を取り戻そうとこのfirefox拡張機能を書いた。  
-最初は手っ取り早くCSPヘッダ全体を取り除くつもりだったが、セキュリティを高めるためのCSPヘッダだから出来る限り尊重して
-、必要なスクリプトを読み込むための記述を追加する形にした。  
-使い方  
+## Adds directive or directive-value to the existing CSP(content-security-policy) header in HTTP response.
+## HTTPレスポンスの既存のCSPヘッダにディレクティブあるいはディレクティブ値を追加するFirefox拡張機能
+### Usage
 ![screenshot](https://yobukodori.github.io/freedom/image/csp-for-me-screenshot.jpg)
-- **Applied URLs** に対象とする
-[urlパターン](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Match_patterns)を
-カンマ区切りで指定する  
-- また、対象となる
-[リソースタイプ](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/ResourceType)
-はトップページ（main_frame）と iframe 内のページ（sub_frame）  
-- **CSP Directives** に追加するディレクティブをCSPヘッダの記述法で指定する。
-レスポンスのCSPヘッダに同じディレクティブ名が存在すればその値の末尾に追加の値を挿入する。
-同じディレクティブ名がなければヘッダ末尾にディレクティブを追加する。
-**レスポンスにCSPヘッダがなければ何もしない**  
-例えば script-src https<z>://</z>myscript.com; img-src https<z>://</z>myimage.com
-- **Save** は設定を保存し適用する
-- **Apply** は設定を適用する（保存はしない）
-- **Get Status** は、現在機能が有効か(enable)／現在の適用済みurlパターン(urls)／現在の適用済みCSPディレクティブ(directives)
-／実際にHTTPレスポンスを改変した回数(applied)を表示する
-- **On** でこの拡張機能を有効にし、**Off** でこの拡張機能を無効にする。ツールバーの錠前のアイコンでもオン／オフできる
+- **Applied URLs**: Comma-Separated target [URL patterns](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Match_patterns).
+- **CSP Directives**: CSP directives to add.  
+e.g. script-src https<z>://</z>myscript.com; img-src https<z>://</z>myimage.com  
+Adds new value to end of existing value if same directive name exists.  
+Adds new directive to end of header value if same directive name not exists.  
+Does nothing if CSP header doesn't exist in request.
+- **Save**: Save and apply settings.
+- **Apply**: Apply settings. (doesn't save settings).
+- **Get Status**: get current status and applied settings.
+- **On** enables this addon. **Off** disables this addon. Or clicking cross arrow icon in toolbar toggles enalbe/disable. 
