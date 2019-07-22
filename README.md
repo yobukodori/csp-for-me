@@ -5,7 +5,8 @@ webページのセキュリティを高めることはいいことだが（自�
 自分の責任で読み込む自由を取り戻そうとこのfirefox拡張機能を書いた。  
 最初は手っ取り早くCSPヘッダ全体を取り除くつもりだったが、セキュリティを高めるためのCSPヘッダだから出来る限り尊重して
 、必要なスクリプトを読み込むための記述を追加する形にした。  
-使い方など簡単に説明しておく
+使い方  
+![screenshot](https://yobukodori.github.io/freedom/image/csp-for-me-screenshot.jpg)
 - **Applied URLs** に対象とする
 [urlパターン](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Match_patterns)を
 カンマ区切りで指定する  
@@ -21,4 +22,4 @@ webページのセキュリティを高めることはいいことだが（自�
 - **Apply** は設定を適用する（保存はしない）
 - **Get Status** は、現在機能が有効か(enable)／現在の適用済みurlパターン(urls)／現在の適用済みCSPディレクティブ(directives)
 ／実際にHTTPレスポンスを改変した回数(applied)を表示する
-- **On** でこの拡張機能を有効にし、**Off** でこの拡張機能を無効にする
+- **On** でこの拡張機能を有効にし、**Off** でこの拡張機能を無効にする。ツールバーの錠前のアイコンでもオン／オフできる
