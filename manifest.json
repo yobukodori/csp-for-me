@@ -1,9 +1,13 @@
 {
 	"manifest_version" : 2,
 	"name": "CSP for Me",
-	"version": "0.1.0",
+	"version": "0.2.2",
 	"author": "yobukodori",
-	"description": "Append directive-value to CSP header in HTTP response.",
+	"description": "modify Content-Security-Policy header in HTTP response.",
+
+	"icons": {
+		"48": "icons/icon-48.png"
+	},
 
 	"permissions" : [
 		"webRequest",
@@ -19,7 +23,7 @@
 	"browser_action" : {
 		"default_title" : "CSP for Me",
 		"default_icon"  : {
-			"48" : "icons/button-48.png"
+			"48" : "icons/button-48-off.png"
 		}
 	},
 

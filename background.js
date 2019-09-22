@@ -1,13 +1,14 @@
 let my = {
-	dmp: new diff_match_patch(),
 	os : "n/a", // mac|win|android|cros|linux|openbsd
+	defaultTitle: "CSP for Me",
     enabled : false,
 	debug: false,
+	noCache: false,
 	appliedUrls: "",
-	cspDirectives: "",
-	directivesToAppend: [],
+	appliedPolicy: "",
+	policyForMe: [],
 	filterUrls: [],
-	filterTypes: ["main_frame","sub_frame"], //"sub_frame","xmlhttprequest"
+	filterTypes: ["main_frame","sub_frame"], //v.0.1.1
 	target: {
 		"content-security-policy": 1,
 		"content-security-policy-report-only": 1,
@@ -15,10 +16,27 @@ let my = {
 		"x-content-security-policy-report-only": 1,
 		"x-webkit-csp":1
 	},
+	cacheTarget: {
+		"cache-control": function(){
+			return {
+				name: "cache-control",
+				value: "no-cache, no-store, must-revalidate"
+			}
+		},
+		"expires": function(){
+			return {
+				name: "expires",
+				value: new Date().toUTCString()
+			}
+		}
+	},
 	appliedCounter: 0,
 	//====================================================
-    init : function(platformInfo) {
-		//console.info("CSP4M initializing...");
+    init : function(platformInfo) 
+	{
+		let man = browser.runtime.getManifest();
+		if (man.browser_action && man.browser_action.default_title)
+			my.defaultTitle = man.browser_action.default_title;
 
 		my.os = platformInfo.os;
 
@@ -27,7 +45,7 @@ let my = {
         });
 
         let prefs = browser.storage.sync.get(
-			["enableAtStartup","printDebugInfo","appliedUrls",'cspDirectives']);
+			["enableAtStartup","printDebugInfo","noCache","appliedUrls",'appliedPolicy']);
         prefs.then((pref) => {
 			my.updateSettings(pref, pref.enableAtStartup);
         });
@@ -40,37 +58,40 @@ let my = {
 	//====================================================
 	updateSettings : function(pref, fEnable)
 	{
-		let prev_enabled = my.enabled, setteings_updated;
+		let disabled;
 		my.debug = pref.printDebugInfo || false;
+		my.noCache = pref.noCache || false;
 		if (typeof pref.appliedUrls === "string"){
 			if (pref.appliedUrls !== my.appliedUrls){
-				if (my.enabled)
+				if (my.enabled){
 					my.toggle(false);
+					disabled = true;
+				}
 				my.appliedUrls = pref.appliedUrls;
-				setteings_updated = true;
 				my.filterUrls = parseUrls(my.appliedUrls);
 				my.log("urls changed: ["+my.filterUrls+"]");
 			}
 		}
-		if (typeof pref.cspDirectives === "string"){
-			if (pref.cspDirectives !== my.cspDirectives){
-				if (my.enabled)
+		if (typeof pref.appliedPolicy === "string"){
+			if (pref.appliedPolicy !== my.appliedPolicy){
+				if (my.enabled){
 					my.toggle(false);
-				my.cspDirectives = pref.cspDirectives;
-				setteings_updated = true;
-				let ro = cspParse(my.cspDirectives);
+					disabled = true;
+				}
+				my.appliedPolicy = pref.appliedPolicy;
+				let ro = cspParse(my.appliedPolicy);
 				if (ro.error){
-					my.directivesToAppend = [];
+					my.policyForMe = [];
 					my.log("error: " + ro.error);
 				}
 				else {
-					my.directivesToAppend = ro.directives;
+					my.policyForMe = ro.policy;
 				}
-				my.log('directives changed: "'+csp_directives2str(my.directivesToAppend)+'"');
+				my.log('my.policy changed: "'+csp_policy2str(my.policyForMe)+'"');
 			}
 		}
-		if (prev_enabled && setteings_updated){
-			if (my.filterUrls.length > 0 && my.directivesToAppend.length > 0)
+		if (disabled || (fEnable && ! my.enabled)){
+			if (my.filterUrls.length > 0 && my.policyForMe.length > 0)
 				my.toggle(true);
 		}
 	},
@@ -88,10 +109,11 @@ let my = {
 				"status": {
 					enabled: my.enabled,
 					debug: my.debug,
+					noCache: my.noCache,
 					appliedUrls: my.appliedUrls,
 					filterUrls: my.filterUrls,
-					cspDirectives: my.cspDirectives,
-					directivesToAppend: my.directivesToAppend,
+					appliedPolicy: my.appliedPolicy,
+					policyForMe: my.policyForMe,
 					appliedCounter: my.appliedCounter
 				}
 			});
@@ -107,15 +129,16 @@ let my = {
 		}
 	},
 	//====================================================
-    toggle : function(state) {
+    toggle : function(state) 
+	{
         if(typeof state === 'boolean') {
             my.enabled = state;
         }
         else {
 			if (my.enabled = ! my.enabled){
-				if (my.filterUrls.length === 0 || my.directivesToAppend.length ===0){
+				if (my.filterUrls.length === 0 || my.policyForMe.length ===0){
 					my.enabled = false;
-					my.log("error: filterUrls or directivesToAppend empty");
+					my.log("error: filterUrls or policyForMe empty");
 					return;
 				}
 			}
@@ -126,7 +149,8 @@ let my = {
         if(my.enabled) {
             browser.webRequest.onHeadersReceived.addListener(
                 my.onHeadersReceived
-                ,{urls: my.filterUrls, types: my.filterTypes}
+                //,{urls: my.filterUrls, types: my.filterTypes}
+                ,{urls: my.filterUrls}
                 ,["blocking" ,"responseHeaders"]
             );
         }
@@ -139,39 +163,53 @@ let my = {
 			type:"statusChange", enabled:my.enabled });
     },
 	//====================================================
-    updateButton : function() {
+    updateButton : function() 
+	{
         let buttonStatus = my.enabled ? 'on' : 'off';
-		if (my.os == "win"){
+		if (browser.browserAction.setIcon !== undefined)
 			browser.browserAction.setIcon({path:{48:'icons/button-48-'+buttonStatus+'.png'}});
-		}
-		else if (my.os == "android"){
-			//browser.browserAction.setTitle('CSP for Me: '+buttonStatus);
-		}
-		else {
-		}
+		if (browser.browserAction.setTitle !== undefined)
+			browser.browserAction.setTitle({title: my.defaultTitle + " ("+buttonStatus+")"});
     },
 	//====================================================
-    onHeadersReceived : function(response) {
-		let modified;
-		if (my.debug) my.log("onHeadersReceived: "+response.url);
-		//for (let i = 0 ; i < response.responseHeaders.length ; i++){
+    onHeadersReceived : function(response) 
+	{
+		function header2str(h){
+			return h.name+": "+h.value.substring(0,60)+(h.value.length>60?"...":"");
+		}
+		let cspDetected, urlReported, modified;
 		for (let i = response.responseHeaders.length - 1 ; i >= 0 ; i--){
+			cspDetected = true;
 			if (my.target[response.responseHeaders[i].name.toLowerCase()]){
-				if (my.debug) my.log(response.responseHeaders[i].name+": "+response.responseHeaders[i].value.substring(0,60));
-				let old_val = response.responseHeaders[i].value,
-					new_val = cspMerge(old_val, my.directivesToAppend);
-				response.responseHeaders[i].value = new_val;
-				if (my.debug){
-					let diff = my.dmp.diff_main(old_val, new_val), diff_str = "";
-					for (let j = 0 ; j < diff.length ; j++){
-						if (diff[j][0] != 0)
-							diff_str += ',' + (diff[j][0] > 0 ? "+":"-") + '"' + diff[j][1] + '"';
-					}
-					my.log("appended: " + diff_str.substring(1));
+				if (! urlReported){
+					if (my.debug) my.log("["+response.type+"] " + response.url.substring(0,60));
+					urlReported = true;
 				}
-				modified = true;
+				if (my.debug) my.log(header2str(response.responseHeaders[i]));
+				let ro = cspMerge(response.responseHeaders[i].value, my.policyForMe);
+				if (ro.modified){
+					if (my.debug) my.log("Modified: " + ro.log);
+					response.responseHeaders[i].value = ro.policy;
+					modified = true;
+				}
 			}
 		}
+		
+		if (my.noCache && cspDetected){
+			if (modified){
+				for (let i = response.responseHeaders.length - 1 ; i >= 0 ; i--){
+					if (my.cacheTarget[response.responseHeaders[i].name.toLowerCase()]){
+						if (my.debug) my.log("Removed: "+header2str(response.responseHeaders[i]));
+						response.responseHeaders.splice(i, 1);
+					}
+				}
+				Object.keys(my.cacheTarget).forEach(function(name){
+					let i = response.responseHeaders.push(my.cacheTarget[name]()) - 1;
+					if (my.debug) my.log("Added: "+header2str(response.responseHeaders[i]));
+				});
+			}
+		}
+		
 		//let BlockingResponse = {};
 		if (modified){
 			my.appliedCounter++;

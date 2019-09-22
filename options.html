@@ -10,7 +10,7 @@ form, form input, form button, #log {
 }
 
 form.mobile, form input.mobile, form button.mobile, #log.mobile {
-	font-size: x-large;
+	//font-size: x-large;
 }
 
 #toggle.on {
@@ -24,6 +24,15 @@ form.mobile, form input.mobile, form button.mobile, #log.mobile {
 	border-color: black;
 }
 
+span.error {
+	background-color: pink;
+	font-weight: bold;
+}
+
+span.warning {
+	background-color: yellow;
+}
+
 </style>
 </head>
 <body>
@@ -33,6 +42,8 @@ form.mobile, form input.mobile, form button.mobile, #log.mobile {
             <label for="enableAtStartup">Enable at startup</label>
             <input type="checkbox" id="printDebugInfo">
             <label for="printDebugInfo">Print debug info</label>
+            <input type="checkbox" id="noCache">
+            <label for="noCache">no-cache</label>
         </div>
         <div style="border-style:solid;padding:0px 5px 5px;border-width:thin">
                 Applied URLs (Comma-Separated URL patterns)<br/>
@@ -42,8 +53,8 @@ form.mobile, form input.mobile, form button.mobile, #log.mobile {
 					style="width:100%;margin-top:5px">
         </div>
         <div style="border-style:solid;padding:0px 5px 5px;border-width:thin">
-                CSP Directives<br/>
-                <input type="text" id="cspDirectives" 
+                Applied Policy<br/>
+                <input type="text" id="appliedPolicy" 
 					style="width:100%;margin-top:5px">
         </div>
         <div style="margin-top:5px;">
@@ -52,8 +63,8 @@ form.mobile, form input.mobile, form button.mobile, #log.mobile {
 			| <button type="button" id="getStatus">Get Status</button>
 			<button type="button" id="toggle">Toggle On/Off</button>
 		</div>
-		<div id="log">dummy for<br/><br/><br/><br/><br/><br/>
-			<br/><br/><br/>android</div>
+		<div id="log"><span>dummy for<br/><br/><br/><br/><br/><br/>
+			<br/><br/><br/>android</span></div>
     </form>
     <script src="util.js"></script>
     <script src="options.js"></script>

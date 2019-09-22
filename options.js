@@ -2,19 +2,20 @@ let dummy_log_cleared;
 
 function log(s)
 {
-	let style, html = s.replace(/</g, "&lt;");
+	let e = document.createElement("span");
+	e.innerText = s;
+	e.appendChild(document.createElement("br"));
 	if (/^error:/i.test(s))
-		style = "background-color:pink;font-weight:bold;";
+		e.className = "error";
 	else if (/^warning:/i.test(s))
-		style = "background-color:yellow;";
-	if (style)
-		html = '<span style="' + style + '">' + html + "</span>";
-	let e = document.querySelector('#log');
+		e.className = "warning";
+	let log = document.querySelector('#log');
 	if (! dummy_log_cleared){
-		e.innerHTML = "";
+		log.innerHTML = "";
+		log.appendChild(document.createElement("span"));
 		dummy_log_cleared = true;
 	}
-	e.innerHTML =  (new Date()).toLocaleString()+" "+html + "<br/>" + e.innerHTML;
+	log.insertBefore(e, log.firstElementChild);
 }
 
 function applySettings(fSave)
@@ -28,29 +29,30 @@ function applySettings(fSave)
 			return;
 		}
 	}
-	let cspDirectives = document.querySelector('#cspDirectives').value;
-	let directives = [];
-	if (cspDirectives){
-		let ro = cspParse(cspDirectives);
+	let appliedPolicy = document.querySelector('#appliedPolicy').value;
+	let policy = [];
+	if (appliedPolicy){
+		let ro = cspParse(appliedPolicy);
 		if (ro.error){
 			log("error: " + ro.error);
 			return;
 		}
-		directives = ro.directives;
-		if (directives.length == 0){
-			log("error: no directive in '" + cspDirectives + "'");
+		policy = ro.policy;
+		if (policy.length == 0){
+			log("error: no directive in '" + appliedPolicy + "'");
 			return;
 		}
 	}
 	let pref = {
 		enableAtStartup : document.querySelector('#enableAtStartup').checked,
 		printDebugInfo : document.querySelector('#printDebugInfo').checked,
+		noCache: document.querySelector('#noCache').checked,
 		appliedUrls : appliedUrls,
-		cspDirectives : cspDirectives
+		appliedPolicy : appliedPolicy
 	};
 	if (urls.length == 0)
 		log("warning: no url.");
-	if (directives.length == 0)
+	if (policy.length == 0)
 		log("warning: no directive.");
 	if (fSave){
 		browser.storage.sync.set(pref);
@@ -71,7 +73,7 @@ function onStatusChange(fEnabled)
 {
 	let e = document.querySelector('#toggle');
 	e.className = (fEnabled ? "on" : "off") + (g_is_android ? " mobile" : "");
-	e.innerHTML = fEnabled ? "Off" : "On";
+	e.innerText = fEnabled ? "On" : "Off";
 }
 
 function onMessage(m, sender, sendResponse)
@@ -81,7 +83,7 @@ function onMessage(m, sender, sendResponse)
 	}
 	else if (m.type === "status"){
 		let s = m["status"];
-		log("enabled: "+s.enabled+", urls: ["+s.filterUrls+"] , directives: \""+csp_directives2str(s.directivesToAppend)+"\", applied: "+s.appliedCounter);
+		log("enabled:"+s.enabled+" debug:"+s.debug+" no-cache:"+s.noCache+" urls:["+s.filterUrls+"]  policy:\""+csp_policy2str(s.policyForMe)+"\" applied:"+s.appliedCounter);
 		onStatusChange(s.enabled);
 	}
 	else if (m.type === "statusChange"){
@@ -119,14 +121,15 @@ function onDOMContentLoaded()
 	}
 	
     let prefs = browser.storage.sync.get(
-		['enableAtStartup','printDebugInfo','appliedUrls','cspDirectives']);
+		['enableAtStartup','printDebugInfo','noCache','appliedUrls','appliedPolicy']);
     prefs.then((pref) => {
         document.querySelector('#enableAtStartup').checked = pref.enableAtStartup || false;
         document.querySelector('#printDebugInfo').checked = pref.printDebugInfo || false;
+        document.querySelector('#noCache').checked = pref.noCache || false;
 		if (typeof pref.appliedUrls === "string")
 			document.querySelector('#appliedUrls').value = pref.appliedUrls;
-		if (typeof pref.cspDirectives === "string")
-			document.querySelector('#cspDirectives').value = pref.cspDirectives;
+		if (typeof pref.appliedPolicy === "string")
+			document.querySelector('#appliedPolicy').value = pref.appliedPolicy;
     });
 }
 
