@@ -29,7 +29,7 @@ function applySettings(fSave)
 			return;
 		}
 	}
-	let appliedPolicy = document.querySelector('#appliedPolicy').value;
+	let appliedPolicy = document.querySelector('#appliedPolicy').value.trim().replace(/\s+/g,' ');
 	let policy = [];
 	if (appliedPolicy){
 		let ro = cspParse(appliedPolicy);
@@ -73,7 +73,7 @@ function onStatusChange(fEnabled)
 {
 	let e = document.querySelector('#toggle');
 	e.className = (fEnabled ? "on" : "off") + (g_is_android ? " mobile" : "");
-	e.innerText = fEnabled ? "On" : "Off";
+	e.innerText = fEnabled ? "Off (Now On)" : "On (Now Off)";
 }
 
 function onMessage(m, sender, sendResponse)
@@ -111,7 +111,7 @@ function onDOMContentLoaded()
 		browser.runtime.sendMessage({type: "toggle"});
 	};
 	if (g_is_android){
-		let e = document.querySelectorAll("form, form input, form button, #log");
+		let e = document.querySelectorAll("form, form input, form textarea, form button, #log");
 		for (let i = 0 ; i < e.length ; i++){
 			let cn = e[i].className;
 			if (typeof cn !== "string")

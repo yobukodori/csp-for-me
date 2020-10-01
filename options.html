@@ -5,14 +5,27 @@
 <meta charset="utf-8">
 <style type="text/css">
 
-form, form input, form button, #log {
+form, form button, #log {
 	font-size: large;
 }
 
-form.mobile, form input.mobile, form button.mobile, #log.mobile {
-	//font-size: x-large;
+form input, form textarea {
+	font-family: inherit;
+	font-size: large;
+	font-weight: bold;
 }
 
+#appliedUrls {
+	margin-top:5px;
+	width:100%;
+}
+
+#appliedPolicy {
+	margin-top:5px;
+	width:100%;
+	word-break:break-all;
+}
+	
 #toggle.on {
 	background-color: yellow;
 }
@@ -49,13 +62,11 @@ span.warning {
                 Applied URLs (Comma-Separated URL patterns)<br/>
 				e.g. *://*.a.com/*, *://*.b.com/*<br/>
 				ref. https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Match_patterns<br/>
-                <input type="text" id="appliedUrls" 
-					style="width:100%;margin-top:5px">
+                <input type="text" id="appliedUrls">
         </div>
         <div style="border-style:solid;padding:0px 5px 5px;border-width:thin">
                 Applied Policy<br/>
-                <input type="text" id="appliedPolicy" 
-					style="width:100%;margin-top:5px">
+				<textarea id="appliedPolicy"></textarea>
         </div>
         <div style="margin-top:5px;">
             <button type="submit">Save</button>
