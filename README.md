@@ -1,4 +1,4 @@
-# csp-for-me - firefox extension
+# CSP for Me - firefox extension
 ## Adds/Removes directive or directive-value to the existing CSP(content-security-policy) header in HTTP response.
 ## HTTPレスポンスの既存のCSPヘッダにディレクティブあるいはディレクティブ値を追加／削除するFirefox拡張機能
 ### Usage
