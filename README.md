@@ -3,6 +3,9 @@
 ## HTTPレスポンスの既存のCSPヘッダにディレクティブあるいはディレクティブ値を追加／削除するFirefox拡張機能
 ### Usage
 ![screenshot](https://yobukodori.github.io/freedom/image/csp-for-me-screenshot.jpg)
+- **Enable at startup**: Enable this feature when the browser is started.  
+- **Print debug info**:  Output debug information at the bottom of the Options tab.  
+- **no-cache**:  Controls the Cache-Control header so that CSP-modified pages are not cached.  
 - **Applied URLs**: Comma-Separated target [URL patterns](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Match_patterns).
 - **Applied Policy**: CSP directives to add or remove.  
 Add: Follow the CSP syntax.  
@@ -15,6 +18,6 @@ Does nothing if CSP header doesn't exist in response.
 - **Save**: Save and apply settings.
 - **Apply**: Apply settings. (doesn't save settings).
 - **Get Status**: get current status and applied settings.
-- **On** enables this addon. **Off** disables this addon. Or clicking  lock icon in toolbar toggles enable/disable. 
+- **On** enables this feature. **Off** disables this feature. Or clicking  lock icon in toolbar toggles enable/disable. 
   
-If CSP for Me doesn't work, try clearing your browser's cache. The browser may be loading the cache of the page before CPS modification.
+If CSP for Me doesn't work, try clearing your browser's cache. The browser may be loading the cache of the page before CSP modification.
