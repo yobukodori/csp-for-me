@@ -21,6 +21,7 @@ function log(s)
 function applySettings(fSave)
 {
 	let appliedUrls = document.querySelector('#appliedUrls').value;
+	appliedUrls = appliedUrls.trim().replace(/\s+/g, ' ');
 	let urls =  [];
 	if (appliedUrls){
 		urls =  parseUrls(appliedUrls);
@@ -29,7 +30,8 @@ function applySettings(fSave)
 			return;
 		}
 	}
-	let appliedPolicy = document.querySelector('#appliedPolicy').value.trim().replace(/\s+/g,' ');
+	let appliedPolicy = document.querySelector('#appliedPolicy').value;
+	appliedPolicy = appliedPolicy.trim().replace(/\s+/g, ' ');
 	let policy = [];
 	if (appliedPolicy){
 		let ro = cspParse(appliedPolicy);
@@ -72,7 +74,7 @@ let g_is_android = navigator.userAgent.indexOf('Android') > 0,	g_is_pc = ! g_is_
 function onStatusChange(fEnabled)
 {
 	let e = document.querySelector('#toggle');
-	e.className = (fEnabled ? "on" : "off") + (g_is_android ? " mobile" : "");
+	e.className = (fEnabled ? "on" : "off") + " " + (g_is_pc ? "pc" : "mobile");
 	e.innerText = fEnabled ? "Off (Now On)" : "On (Now Off)";
 }
 
@@ -110,14 +112,10 @@ function onDOMContentLoaded()
 	document.querySelector('#toggle').onclick = function (){
 		browser.runtime.sendMessage({type: "toggle"});
 	};
-	if (g_is_android){
-		let e = document.querySelectorAll("form, form input, form textarea, form button, #log");
-		for (let i = 0 ; i < e.length ; i++){
-			let cn = e[i].className;
-			if (typeof cn !== "string")
-				cn = "";
-			e[i].className = cn + " mobile";
-		}
+
+	let e = document.querySelectorAll("form, form input, form textarea, form button, #log");
+	for (let i = 0 ; i < e.length ; i++){
+		e[i].classList.add(g_is_pc ? "pc" : "mobile");
 	}
 	
     let prefs = browser.storage.sync.get(

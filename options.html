@@ -3,27 +3,25 @@
 <html>
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <style type="text/css">
 
-form, form button, #log {
+body{
+	background-color: #f8f8f8;
+}
+
+form.pc, form input.pc, form button.pc, #log.pc {
 	font-size: large;
 }
 
-form input, form textarea {
+form textarea {
 	font-family: inherit;
-	font-size: large;
-	font-weight: bold;
+	font-size: inherit;
 }
 
-#appliedUrls {
-	margin-top:5px;
-	width:100%;
-}
-
-#appliedPolicy {
-	margin-top:5px;
-	width:100%;
-	word-break:break-all;
+#appliedUrls, #appliedPolicy {
+	width: 100%;
+	word-break: break-all;
 }
 	
 #toggle.on {
@@ -62,11 +60,11 @@ span.warning {
                 Applied URLs (Comma-Separated URL patterns)<br/>
 				e.g. *://*.a.com/*, *://*.b.com/*<br/>
 				ref. https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Match_patterns<br/>
-                <input type="text" id="appliedUrls">
+                <textarea id="appliedUrls" rows="3"></textarea>
         </div>
         <div style="border-style:solid;padding:0px 5px 5px;border-width:thin">
                 Applied Policy<br/>
-				<textarea id="appliedPolicy"></textarea>
+				<textarea id="appliedPolicy" rows="3"></textarea>
         </div>
         <div style="margin-top:5px;">
             <button type="submit">Save</button>
