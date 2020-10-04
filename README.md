@@ -20,4 +20,4 @@ Does nothing if CSP header doesn't exist in response.
 - **Get Status**: get current status and applied settings.
 - **On** enables this feature. **Off** disables this feature. Or clicking  lock icon in toolbar toggles enable/disable. 
   
-If CSP for Me doesn't work, try clearing your browser's cache. The browser may be loading the cache of the page before CSP modification.
+If CSP for Me doesn't work, reload the page several times. The browser may be loading the cache of the page before CSP modification.
