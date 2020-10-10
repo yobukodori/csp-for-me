@@ -4,50 +4,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<style type="text/css">
-
-body{
-	background-color: #f8f8f8;
-}
-
-form.pc, form input.pc, form button.pc, #log.pc {
-	font-size: large;
-}
-
-form textarea {
-	font-family: inherit;
-	font-size: inherit;
-}
-
-#appliedUrls, #appliedPolicy {
-	width: 100%;
-	word-break: break-all;
-}
-	
-#toggle.on {
-	background-color: yellow;
-}
-
-#toggle.off {
-	background-color: gray;
-	font-weight: bold;
-	color: yellow;
-	border-color: black;
-}
-
-span.error {
-	background-color: pink;
-	font-weight: bold;
-}
-
-span.warning {
-	background-color: yellow;
-}
-
-</style>
+<link rel="stylesheet" type="text/css" href="options.css">
 </head>
 <body>
-    <form>
+    <div class="main">
         <div>
             <input type="checkbox" id="enableAtStartup">
             <label for="enableAtStartup">Enable at startup</label>
@@ -56,25 +16,25 @@ span.warning {
             <input type="checkbox" id="noCache">
             <label for="noCache">no-cache</label>
         </div>
-        <div style="border-style:solid;padding:0px 5px 5px;border-width:thin">
-                Applied URLs (Comma-Separated URL patterns)<br/>
-				e.g. *://*.a.com/*, *://*.b.com/*<br/>
-				ref. https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Match_patterns<br/>
-                <textarea id="appliedUrls" rows="3"></textarea>
+        <div class="text-box">
+                Applied URLs (Comma-Separated <a href="https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Match_patterns">URL patterns</a>)<br/>
+                <textarea id="appliedUrls" rows="3"
+					placeholder="https://mobile.twitter.com/*,https://twitter.com/*"></textarea>
         </div>
-        <div style="border-style:solid;padding:0px 5px 5px;border-width:thin">
+        <div class="text-box">
                 Applied Policy<br/>
-				<textarea id="appliedPolicy" rows="3"></textarea>
+				<textarea id="appliedPolicy" rows="3"
+					placeholder="script-src 'remove':/^'(nonce|sha256|sha384|sha512)-/ 'unsafe-inline' https://yobukodori.github.io"></textarea>
         </div>
-        <div style="margin-top:5px;">
-            <button type="submit">Save</button>
+        <div class="button-area">
+            <button type="button" id="save">Save</button>
 			<button type="button" id="apply">Apply</button>
 			| <button type="button" id="getStatus">Get Status</button>
 			<button type="button" id="toggle">Toggle On/Off</button>
 		</div>
 		<div id="log"><span>dummy for<br/><br/><br/><br/><br/><br/>
 			<br/><br/><br/>android</span></div>
-    </form>
+    </div>
     <script src="util.js"></script>
     <script src="options.js"></script>
 </body>

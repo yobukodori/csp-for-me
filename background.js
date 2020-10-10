@@ -118,6 +118,15 @@ let my = {
 				}
 			});
 		}
+		else if (message.type === "syncAppliedData"){
+			browser.runtime.sendMessage({
+				type: "syncAppliedData",
+				debug: my.debug,
+				noCache: my.noCache,
+				appliedUrls: my.appliedUrls,
+				appliedPolicy: my.appliedPolicy
+			});
+		}
 		else if (message.type === "updateSettings"){
 			my.updateSettings(message.pref);
 		}

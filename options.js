@@ -2,20 +2,30 @@ let dummy_log_cleared;
 
 function log(s)
 {
-	let e = document.createElement("span");
-	e.innerText = s;
-	e.appendChild(document.createElement("br"));
-	if (/^error:/i.test(s))
-		e.className = "error";
-	else if (/^warning:/i.test(s))
-		e.className = "warning";
 	let log = document.querySelector('#log');
 	if (! dummy_log_cleared){
 		log.innerHTML = "";
 		log.appendChild(document.createElement("span"));
 		dummy_log_cleared = true;
 	}
-	log.insertBefore(e, log.firstElementChild);
+	if (! (s = s.replace(/\s+$/, ""))){
+		return;
+	}
+	let className = /^error\b/i.test(s) ? "error" : /^warning\b/i.test(s) ? "warning" : "";
+	let a = s.split("\n");
+	for (let i = a.length - 1 ; i >= 0 ; i--){
+		let s = a[i].replace(/\s+$/, "");
+		let e = document.createElement("span");
+		let col = 0, indent = 0;
+		while (s[0] === '\t' || s[0] === ' '){
+			indent += s[0] === ' ' ? 1 : col === 0 ? 4 : (4 - col % 4);
+			s = s.substring(1);
+		}
+		e.appendChild(document.createTextNode((indent > 0 ? "\u00A0".repeat(indent) : "") + s));
+		e.appendChild(document.createElement("br"));
+		if (className){ e.classList.add(className); }
+		log.insertBefore(e, log.firstElementChild);
+	}
 }
 
 function applySettings(fSave)
@@ -64,11 +74,6 @@ function applySettings(fSave)
 	browser.runtime.sendMessage({type:"updateSettings",pref:pref});
 }
 
-function onSubmit(e) {
-	applySettings(true);
-	e.preventDefault();
-}
-
 let g_is_android = navigator.userAgent.indexOf('Android') > 0,	g_is_pc = ! g_is_android;
 
 function onStatusChange(fEnabled)
@@ -85,8 +90,17 @@ function onMessage(m, sender, sendResponse)
 	}
 	else if (m.type === "status"){
 		let s = m["status"];
-		log("enabled:"+s.enabled+" debug:"+s.debug+" no-cache:"+s.noCache+" urls:["+s.filterUrls+"]  policy:\""+csp_policy2str(s.policyForMe)+"\" applied:"+s.appliedCounter);
+		log("enabled:" + s.enabled + " debug:" + s.debug + " no-cache:" + s.noCache
+			+ " applied:" + s.appliedCounter + "\n"
+			+ "appliedUrls: " + s.appliedUrls + "\n"
+			+ "appliedPolicy: " + s.appliedPolicy);
 		onStatusChange(s.enabled);
+	}
+	else if (m.type === "syncAppliedData"){
+        document.querySelector('#printDebugInfo').checked = m.debug;
+        document.querySelector('#noCache').checked = m.noCache;
+		document.querySelector('#appliedUrls').value = m.appliedUrls;
+		document.querySelector('#appliedPolicy').value = m.appliedPolicy;
 	}
 	else if (m.type === "statusChange"){
 		onStatusChange(m.enabled);
@@ -101,19 +115,21 @@ function getBackgroundStatus()
 
 function onDOMContentLoaded()
 {
-	//document.querySelector("#log").innerHTML = "";
 	getBackgroundStatus();
-	document.querySelector('#getStatus').onclick = function (){
-		getBackgroundStatus();
-	};
+	document.querySelector('#save').addEventListener('click', ev=>{
+		applySettings(true);
+	});
 	document.querySelector('#apply').onclick = function (){
 		applySettings();
+	};
+	document.querySelector('#getStatus').onclick = function (){
+		getBackgroundStatus();
 	};
 	document.querySelector('#toggle').onclick = function (){
 		browser.runtime.sendMessage({type: "toggle"});
 	};
 
-	let e = document.querySelectorAll("form, form input, form textarea, form button, #log");
+	let e = document.querySelectorAll(".main, input, textarea, button, #log");
 	for (let i = 0 ; i < e.length ; i++){
 		e[i].classList.add(g_is_pc ? "pc" : "mobile");
 	}
@@ -122,15 +138,9 @@ function onDOMContentLoaded()
 		['enableAtStartup','printDebugInfo','noCache','appliedUrls','appliedPolicy']);
     prefs.then((pref) => {
         document.querySelector('#enableAtStartup').checked = pref.enableAtStartup || false;
-        document.querySelector('#printDebugInfo').checked = pref.printDebugInfo || false;
-        document.querySelector('#noCache').checked = pref.noCache || false;
-		if (typeof pref.appliedUrls === "string")
-			document.querySelector('#appliedUrls').value = pref.appliedUrls;
-		if (typeof pref.appliedPolicy === "string")
-			document.querySelector('#appliedPolicy').value = pref.appliedPolicy;
     });
+	browser.runtime.sendMessage({type: "syncAppliedData"});
 }
 
 document.addEventListener('DOMContentLoaded', onDOMContentLoaded);
-document.querySelector('form').addEventListener('submit', onSubmit);
 browser.runtime.onMessage.addListener(onMessage);

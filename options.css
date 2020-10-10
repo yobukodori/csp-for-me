@@ -1,0 +1,55 @@
+body{
+	background-color: #f7f7f7;
+}
+
+.main.pc {
+	font-size: large;
+}
+
+.main.mobile {
+	font-size: 15px;
+}
+
+textarea {
+	font-size: inherit;
+}
+
+button {
+	font-size: inherit;
+	padding: 0.1em 0.5em;
+}
+
+.text-box {
+	border-style: solid;
+	padding: 0px 5px 5px;
+	border-width: thin;
+}
+
+#appliedUrls, #appliedPolicy {
+	width: 100%;
+	word-break: break-all;
+}
+
+.button-area {
+	margin-top:5px;
+}
+
+#toggle.on {
+	background-color: yellow;
+}
+
+#toggle.off {
+	background-color: gray;
+	font-weight: bold;
+	color: yellow;
+	border-color: black;
+}
+
+span.error {
+	background-color: pink;
+	font-weight: bold;
+}
+
+span.warning {
+	background-color: yellow;
+}
