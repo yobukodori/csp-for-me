@@ -98,7 +98,7 @@ let my = {
 	//====================================================
 	log : function(str)
 	{
-		browser.runtime.sendMessage({type:"log",str:str});
+		browser.runtime.sendMessage({type:"log",str:str}).catch(err=>{});
 	},
 	//====================================================
 	onMessage : function(message, sender, sendResponse)
@@ -133,8 +133,10 @@ let my = {
 		else if (message.type === "toggle"){
 			my.toggle();
 		}
-		else {
-			my.log("unknown message type:" + message.type);
+		else if (message.type === "getEnabled"){
+			sendResponse({
+				enabled: my.enabled,
+			});
 		}
 	},
 	//====================================================
