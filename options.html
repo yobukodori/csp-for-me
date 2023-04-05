@@ -9,6 +9,10 @@
 <body>
     <div class="main">
         <div>
+			<span class="appInfo">
+				<img id="appIcon" src="icons/icon-48.png">
+				<span id="appName">(app name)</span><span id="appVer">(app version)</span>
+			</span>
             <input type="checkbox" id="enableAtStartup">
             <label for="enableAtStartup">Enable at startup</label>
             <input type="checkbox" id="printDebugInfo">
@@ -18,12 +22,12 @@
         </div>
         <div class="text-box">
                 Applied URLs (Comma-Separated <a href="https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Match_patterns">URL patterns</a>)<br/>
-                <textarea id="appliedUrls" rows="3"
+                <textarea id="appliedUrls" rows="10"
 					placeholder="https://mobile.twitter.com/*,https://twitter.com/*"></textarea>
         </div>
         <div class="text-box">
                 Applied Policy<br/>
-				<textarea id="appliedPolicy" rows="3"
+				<textarea id="appliedPolicy" rows="10"
 					placeholder="script-src 'remove':/^'(nonce|sha256|sha384|sha512)-/ 'unsafe-inline' https://yobukodori.github.io"></textarea>
         </div>
         <div class="button-area">
@@ -32,8 +36,7 @@
 			| <button type="button" id="getStatus">Get Status</button>
 			<button type="button" id="toggle">Toggle On/Off</button>
 		</div>
-		<div id="log"><span>dummy for<br/><br/><br/><br/><br/><br/>
-			<br/><br/><br/>android</span></div>
+		<div id="log"><span>dummy for<br/><br/><br/><br/>android</span></div>
     </div>
     <script src="util.js"></script>
     <script src="options.js"></script>

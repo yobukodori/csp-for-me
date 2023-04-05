@@ -1,3 +1,28 @@
+function alert(msg){
+	const id = "alert";
+	let e = document.getElementById(id);
+	if(! e){
+		e = document.createElement("div");
+		e.id = id;
+		setTimeout(function(e){
+			document.addEventListener("click", function handler(ev){
+				document.removeEventListener("click", handler);
+				e.remove(); 
+			});
+		}, 0, e);
+		document.body.appendChild(e);
+	}
+	let m = document.createElement("div");
+	m.classList.add("message");
+	msg.split("\n").forEach((line,i) =>{
+		if (i > 0){ m.appendChild(document.createElement("br")); }
+		let span = document.createElement("span");
+		span.appendChild(document.createTextNode(line));
+		m.appendChild(span);
+	});
+	e.appendChild(m);
+}
+
 let dummy_log_cleared;
 
 function log(s)
@@ -96,12 +121,6 @@ function onMessage(m, sender, sendResponse)
 			+ "appliedPolicy: " + s.appliedPolicy);
 		onStatusChange(s.enabled);
 	}
-	else if (m.type === "syncAppliedData"){
-        document.querySelector('#printDebugInfo').checked = m.debug;
-        document.querySelector('#noCache').checked = m.noCache;
-		document.querySelector('#appliedUrls').value = m.appliedUrls;
-		document.querySelector('#appliedPolicy').value = m.appliedPolicy;
-	}
 	else if (m.type === "statusChange"){
 		onStatusChange(m.enabled);
 		log(m.enabled ? "Enabled" : "Disabled");
@@ -110,11 +129,18 @@ function onMessage(m, sender, sendResponse)
 
 function getBackgroundStatus()
 {
-	browser.runtime.sendMessage({type: "getStatus"});
+	browser.runtime.sendMessage({type: "getStatus"})
+	.catch(err=>log("Error on sendMessage: " + err));
 }
 
 function onDOMContentLoaded()
 {
+	let man = browser.runtime.getManifest(), 
+		appName = man.name, // man.browser_action.default_title, 
+		appVer = "v." + man.version;
+	document.querySelector('#appName').textContent = appName;
+	document.querySelector('#appVer').textContent = appVer;
+
 	getBackgroundStatus();
 	document.querySelector('#save').addEventListener('click', ev=>{
 		applySettings(true);
@@ -139,7 +165,23 @@ function onDOMContentLoaded()
     prefs.then((pref) => {
         document.querySelector('#enableAtStartup').checked = pref.enableAtStartup || false;
     });
-	browser.runtime.sendMessage({type: "syncAppliedData"});
+	
+	browser.runtime.sendMessage({type: "getSettings"})
+	.then(v=>{
+		if (v.error){
+			alert("Error on getSettings: " + v.error);
+		}
+		else {
+			document.querySelector('#enableAtStartup').checked = v.enableAtStartup;
+			document.querySelector('#printDebugInfo').checked = v.printDebugInfo;
+			document.querySelector('#noCache').checked = v.noCache;
+			document.querySelector('#appliedUrls').value = v.appliedUrls;
+			document.querySelector('#appliedPolicy').value = v.appliedPolicy;
+		}
+	})
+	.catch(err=>{
+		alert("Error on sendMessage('getSettings'): " + err);
+	});
 }
 
 document.addEventListener('DOMContentLoaded', onDOMContentLoaded);
