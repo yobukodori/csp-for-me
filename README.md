@@ -20,5 +20,6 @@ Does nothing if CSP header doesn't exist in response.
 - **Apply**: Apply settings. (doesn't save settings).
 - **Get Status**: get current status and applied settings.
 - **On** enables this feature. **Off** disables this feature. Or clicking  lock icon in toolbar will bring up a pop-up menu where you can turn it on/off and open the settings page.   
+- **Clear Log**: Clear log.
   
 If CSP for Me doesn't work, reload the page several times. The browser may be loading the cache of the page before CSP modification.

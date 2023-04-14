@@ -23,6 +23,13 @@ function alert(msg){
 	e.appendChild(m);
 }
 
+function clearLog()
+{
+	let log = document.querySelector('#log');
+	log.innerHTML = "";
+	log.appendChild(document.createElement("span"));
+}
+
 let dummy_log_cleared;
 
 function log(s)
@@ -154,6 +161,9 @@ function onDOMContentLoaded()
 	document.querySelector('#toggle').onclick = function (){
 		browser.runtime.sendMessage({type: "toggle"});
 	};
+	document.querySelector('#clearLog').addEventListener('click', ev=>{
+		clearLog();
+	});
 
 	let e = document.querySelectorAll(".main, input, textarea, button, #log");
 	for (let i = 0 ; i < e.length ; i++){

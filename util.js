@@ -116,6 +116,15 @@ function csp_policy2str(policy)
 
 function cspMerge(csp_str, policy4me)
 {
+	let h = csp_str.split(",");
+	if (h.length > 1){
+		h = h.map(str => cspMerge(str, policy4me));
+		return {
+			modified: h.some(e => e.modified),
+			policy: h.map(e => e.policy).join(", "),
+			log: h.map(e => e.log).filter(e => e).join(", "),
+		};
+	}
 	let policy = [], dir_names = {};
 	csp_str.split(";").forEach(directive=>{
 		let r = directive.match(CSP_DIRECTIVE_REX);
@@ -136,7 +145,7 @@ function cspMerge(csp_str, policy4me)
 				policy.splice(pi, 1);
 				Object.keys(dir_names).forEach(name=>{if (dir_names[name] > pi) --dir_names[name];});
 				modified = true;
-				log += directive.name + " <removed>;";
+				log += " -" + directive.name + ";";
 				return;
 			}
 			policy[pi].sources = policy[pi].sources.filter(src=>{
@@ -157,13 +166,13 @@ function cspMerge(csp_str, policy4me)
 			});
 			if (added.length + removed.length > 0){
 				modified = true;
-				log += directive.name + (removed.length ? " -" + removed.join(" -") : "") + (added.length ? " +" + added.join(" +") : "")
+				log += " " + directive.name + (removed.length ? " -" + removed.join(" -") : "") + (added.length ? " +" + added.join(" +") : "") + ";";
 			}
 		}
 		else {
 			policy.push({name: directive.name, sources: directive.add});
 			modified = true;
-			log += "+" + directive.name + (directive.add.length ? " "+directive.add.join(" ") : "")+";";
+			log += " +" + directive.name + (directive.add.length ? " "+directive.add.join(" ") : "")+";";
 		}
 	});
 	let a = [];
@@ -171,6 +180,6 @@ function cspMerge(csp_str, policy4me)
 	return {
 		modified: modified,
 		policy: a.length > 0 ? a.join(";") : "",
-		log: log
+		log: log.trim()
 	};
 }

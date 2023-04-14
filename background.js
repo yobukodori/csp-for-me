@@ -1,6 +1,8 @@
 let my = {
 	os : "n/a", // mac|win|android|cros|linux|openbsd
 	defaultTitle: "CSP for Me",
+	initialized: null,
+	enableAtStartup: false,
     enabled : false,
 	debug: false,
 	noCache: false,
@@ -34,31 +36,38 @@ let my = {
 	//====================================================
     init : function(platformInfo) 
 	{
-		let man = browser.runtime.getManifest();
-		if (man.browser_action && man.browser_action.default_title)
-			my.defaultTitle = man.browser_action.default_title;
+		my.initialized = new Promise((resolve, reject)=>{
+			try {
+				let man = browser.runtime.getManifest();
+				if (man.browser_action && man.browser_action.default_title)
+					my.defaultTitle = man.browser_action.default_title;
+				my.os = platformInfo.os;
 
-		my.os = platformInfo.os;
+				browser.browserAction.onClicked.addListener(function(){
+					my.toggle();
+				});
+				my.updateButton();
+				browser.runtime.onMessage.addListener(my.onMessage);
 
-        browser.browserAction.onClicked.addListener(function(){
-            my.toggle();
-        });
-
-        let prefs = browser.storage.sync.get(
-			["enableAtStartup","printDebugInfo","noCache","appliedUrls",'appliedPolicy']);
-        prefs.then((pref) => {
-			my.updateSettings(pref, pref.enableAtStartup);
-        });
-
-        // update button
-        my.updateButton();
-		
-		browser.runtime.onMessage.addListener(my.onMessage);
+				browser.storage.sync.get(["enableAtStartup","printDebugInfo","noCache","appliedUrls",'appliedPolicy'])
+				.then((pref) => {
+					my.updateSettings(pref, pref.enableAtStartup);
+					resolve();
+				})
+				.catch(err=>{
+					reject(err);
+				});
+			}
+			catch(e){
+				reject(e.message);
+			}
+		});
     },
 	//====================================================
 	updateSettings : function(pref, fEnable)
 	{
 		let disabled;
+		my.enableAtStartup = pref.enableAtStartup || false;
 		my.debug = pref.printDebugInfo || false;
 		my.noCache = pref.noCache || false;
 		if (typeof pref.appliedUrls === "string"){
@@ -118,14 +127,29 @@ let my = {
 				}
 			});
 		}
-		else if (message.type === "syncAppliedData"){
-			browser.runtime.sendMessage({
-				type: "syncAppliedData",
-				debug: my.debug,
-				noCache: my.noCache,
-				appliedUrls: my.appliedUrls,
-				appliedPolicy: my.appliedPolicy
-			});
+		else if (message.type === "getSettings"){
+			if (my.initialized){
+				my.initialized.then(()=>{
+					sendResponse({
+						enableAtStartup: my.enableAtStartup,
+						printDebugInfo: my.debug,
+						noCache: my.noCache,
+						appliedUrls: my.appliedUrls,
+						appliedPolicy: my.appliedPolicy
+					});
+				})
+				.catch(err=>{
+					sendResponse({
+						error: err,
+					});
+				});
+				return true;
+			}
+			else {
+				sendResponse({
+					error: "background.js has not been initialized yet.",
+				});
+			}
 		}
 		else if (message.type === "updateSettings"){
 			my.updateSettings(message.pref);
@@ -136,6 +160,7 @@ let my = {
 		else if (message.type === "getEnabled"){
 			sendResponse({
 				enabled: my.enabled,
+				canEnable: my.filterUrls.length > 0 && my.policyForMe.length > 0,
 			});
 		}
 	},
@@ -149,7 +174,7 @@ let my = {
 			if (my.enabled = ! my.enabled){
 				if (my.filterUrls.length === 0 || my.policyForMe.length ===0){
 					my.enabled = false;
-					my.log("error: filterUrls or policyForMe empty");
+					my.log("Error: URL or policy or both not applied");
 					return;
 				}
 			}
@@ -170,8 +195,8 @@ let my = {
                 my.onHeadersReceived
             );
         }
-		browser.runtime.sendMessage({
-			type:"statusChange", enabled:my.enabled });
+		browser.runtime.sendMessage({type:"statusChange", enabled:my.enabled })
+		.catch(e=>{});
     },
 	//====================================================
     updateButton : function() 
@@ -180,13 +205,13 @@ let my = {
 		if (browser.browserAction.setIcon !== undefined)
 			browser.browserAction.setIcon({path:{48:'icons/button-48-'+buttonStatus+'.png'}});
 		if (browser.browserAction.setTitle !== undefined)
-			browser.browserAction.setTitle({title: my.defaultTitle + " ("+buttonStatus+")"});
+			browser.browserAction.setTitle({title: my.defaultTitle});
     },
 	//====================================================
     onHeadersReceived : function(response) 
 	{
 		function header2str(h){
-			return h.name+": "+h.value.substring(0,60)+(h.value.length>60?"...":"");
+			return h.name+": "+h.value;
 		}
 		let cspDetected, urlReported, modified;
 		for (let i = response.responseHeaders.length - 1 ; i >= 0 ; i--){
@@ -199,7 +224,10 @@ let my = {
 				if (my.debug) my.log(header2str(response.responseHeaders[i]));
 				let ro = cspMerge(response.responseHeaders[i].value, my.policyForMe);
 				if (ro.modified){
-					if (my.debug) my.log("Modified: " + ro.log);
+					if (my.debug){
+						my.log("Modified: " + ro.log);
+						my.log("Replaced with: " + ro.policy);
+					}
 					response.responseHeaders[i].value = ro.policy;
 					modified = true;
 				}
