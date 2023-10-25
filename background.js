@@ -213,9 +213,8 @@ let my = {
 		function header2str(h){
 			return h.name+": "+h.value;
 		}
-		let cspDetected, urlReported, modified;
+		let urlReported, modified;
 		for (let i = response.responseHeaders.length - 1 ; i >= 0 ; i--){
-			cspDetected = true;
 			if (my.target[response.responseHeaders[i].name.toLowerCase()]){
 				if (! urlReported){
 					if (my.debug) my.log("["+response.type+"] " + response.url.substring(0,60));
@@ -224,29 +223,33 @@ let my = {
 				if (my.debug) my.log(header2str(response.responseHeaders[i]));
 				let ro = cspMerge(response.responseHeaders[i].value, my.policyForMe);
 				if (ro.modified){
-					if (my.debug){
-						my.log("Modified: " + ro.log);
-						my.log("Replaced with: " + ro.policy);
-					}
-					response.responseHeaders[i].value = ro.policy;
 					modified = true;
-				}
-			}
-		}
-		
-		if (my.noCache && cspDetected){
-			if (modified){
-				for (let i = response.responseHeaders.length - 1 ; i >= 0 ; i--){
-					if (my.cacheTarget[response.responseHeaders[i].name.toLowerCase()]){
+					if (ro.policy){
+						if (my.debug){
+							my.log("Modified: " + ro.log);
+							my.log("Replaced with: " + ro.policy);
+						}
+						response.responseHeaders[i].value = ro.policy;
+					}
+					else { // All directives were removed.
 						if (my.debug) my.log("Removed: "+header2str(response.responseHeaders[i]));
 						response.responseHeaders.splice(i, 1);
 					}
 				}
-				Object.keys(my.cacheTarget).forEach(function(name){
-					let i = response.responseHeaders.push(my.cacheTarget[name]()) - 1;
-					if (my.debug) my.log("Added: "+header2str(response.responseHeaders[i]));
-				});
 			}
+		}
+		
+		if (my.noCache && modified){
+			for (let i = response.responseHeaders.length - 1 ; i >= 0 ; i--){
+				if (my.cacheTarget[response.responseHeaders[i].name.toLowerCase()]){
+					if (my.debug) my.log("Removed: "+header2str(response.responseHeaders[i]));
+					response.responseHeaders.splice(i, 1);
+				}
+			}
+			Object.keys(my.cacheTarget).forEach(function(name){
+				let i = response.responseHeaders.push(my.cacheTarget[name]()) - 1;
+				if (my.debug) my.log("Added: "+header2str(response.responseHeaders[i]));
+			});
 		}
 		
 		//let BlockingResponse = {};

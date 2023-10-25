@@ -116,12 +116,19 @@ function csp_policy2str(policy)
 
 function cspMerge(csp_str, policy4me)
 {
+	if (policy4me.some(e => e.name === "no-csp")){
+		return {
+			modified: true,
+			policy: "",
+			log: "-Content-Security-Policy",
+		};
+	}
 	let h = csp_str.split(",");
 	if (h.length > 1){
 		h = h.map(str => cspMerge(str, policy4me));
 		return {
 			modified: h.some(e => e.modified),
-			policy: h.map(e => e.policy).join(", "),
+			policy: h.map(e => e.policy).filter(e => e).join(", "),
 			log: h.map(e => e.log).filter(e => e).join(", "),
 		};
 	}
@@ -141,38 +148,43 @@ function cspMerge(csp_str, policy4me)
 	policy4me.forEach(directive=>{
 		let pi = dir_names[directive.name], added = [], removed = [];
 		if (pi != null){
-			if (directive.removeDirective){
+			if (! directive.removeDirective){
+				policy[pi].sources = policy[pi].sources.filter(src=>{
+					for (let i = 0 ; i < directive.remove.length ; i++){
+						let exp = directive.remove[i];
+						if (exp instanceof RegExp ? exp.test(src) : exp === src){
+							removed.push(src);
+							return false;
+						}
+					}
+					return true;
+				});
+				directive.add.forEach(src=>{
+					if (! policy[pi].sources.includes(src)){
+						policy[pi].sources.push(src);
+						added.push(src);
+					}
+				});
+				if (added.length + removed.length > 0){
+					modified = true;
+					log += " " + directive.name + (removed.length ? " -" + removed.join(" -") : "") + (added.length ? " +" + added.join(" +") : "") + ";";
+				}
+			}
+			if (directive.removeDirective || policy[pi].sources.length === 0){
 				policy.splice(pi, 1);
 				Object.keys(dir_names).forEach(name=>{if (dir_names[name] > pi) --dir_names[name];});
-				modified = true;
-				log += " -" + directive.name + ";";
-				return;
-			}
-			policy[pi].sources = policy[pi].sources.filter(src=>{
-				for (let i = 0 ; i < directive.remove.length ; i++){
-					let exp = directive.remove[i];
-					if (exp instanceof RegExp ? exp.test(src) : exp === src){
-						removed.push(src);
-						return false;
-					}
+				if (! modified){
+					modified = true;
+					log += " -" + directive.name + ";";
 				}
-				return true;
-			});
-			directive.add.forEach(src=>{
-				if (! policy[pi].sources.includes(src)){
-					policy[pi].sources.push(src);
-					added.push(src);
-				}
-			});
-			if (added.length + removed.length > 0){
-				modified = true;
-				log += " " + directive.name + (removed.length ? " -" + removed.join(" -") : "") + (added.length ? " +" + added.join(" +") : "") + ";";
 			}
 		}
 		else {
-			policy.push({name: directive.name, sources: directive.add});
-			modified = true;
-			log += " +" + directive.name + (directive.add.length ? " "+directive.add.join(" ") : "")+";";
+			if (directive.add.length > 0){
+				policy.push({name: directive.name, sources: directive.add});
+				modified = true;
+				log += " +" + directive.name + (directive.add.length ? " "+directive.add.join(" ") : "")+";";
+			}
 		}
 	});
 	let a = [];

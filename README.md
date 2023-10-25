@@ -13,6 +13,8 @@ Add: Follow the CSP syntax.
 e.g. `script-src 'unsafe-inline' https://yobukodori.github.io`  
 Remove: 'remove': \<value\> or \<regular expression\> or 'directive'  
 e.g. `script-src 'remove':https://www.google-analytics.com 'remove':/^'(nonce|sha256|sha384|sha512)-/; report-uri 'remove':'directive'`  
+Remove CSP header itself: When no-csp is written as an original directive, the CSP header itself is deleted.  
+e.g. `no-csp`  
 Adds new value to end of existing value if same directive name exists.  
 Adds new directive to end of header value if same directive name not exists.  
 Does nothing if CSP header doesn't exist in response.
