@@ -2,6 +2,7 @@ let my = {
 	os : "n/a", // mac|win|android|cros|linux|openbsd
 	defaultTitle: "CSP for Me",
 	initialized: null,
+	settings: {},
 	enableAtStartup: false,
     enabled : false,
 	debug: false,
@@ -49,7 +50,7 @@ let my = {
 				my.updateButton();
 				browser.runtime.onMessage.addListener(my.onMessage);
 
-				browser.storage.sync.get(["enableAtStartup","printDebugInfo","noCache","appliedUrls",'appliedPolicy'])
+				browser.storage.sync.get(["enableAtStartup","printDebugInfo","noCache","colorScheme","appliedUrls",'appliedPolicy'])
 				.then((pref) => {
 					my.updateSettings(pref, pref.enableAtStartup);
 					resolve();
@@ -66,6 +67,7 @@ let my = {
 	//====================================================
 	updateSettings : function(pref, fEnable)
 	{
+		my.settings = pref;
 		let disabled;
 		my.enableAtStartup = pref.enableAtStartup || false;
 		my.debug = pref.printDebugInfo || false;
@@ -134,6 +136,7 @@ let my = {
 						enableAtStartup: my.enableAtStartup,
 						printDebugInfo: my.debug,
 						noCache: my.noCache,
+						colorScheme: my.settings.colorScheme,
 						appliedUrls: my.appliedUrls,
 						appliedPolicy: my.appliedPolicy
 					});

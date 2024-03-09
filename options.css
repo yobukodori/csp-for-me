@@ -1,16 +1,19 @@
 #alert { 
 	position: fixed;
-	 top: 30%;
-	 left: 50%;
-	 transform: translate(-50%,-50%);
-	 padding: 0.5em 1em;
-	 background-color: #ffff88;
-	 border: solid;
-	 min-width: 200px
+	top: 30%;
+	left: 50%;
+	transform: translate(-50%,-50%);
+	padding: 0.5em 1em;
+	background-color: #ffff88;
+	color: black;
+	border: solid;
+	min-width: 200px
 }
 
 body{
-	background-color: #f7f7f7;
+	background-color: Canvas;
+	color: CanvasText;
+	color-scheme: light dark;
 }
 
 body.pc {
@@ -33,6 +36,10 @@ body.mobile {
 	margin-left: 0.5em;
 }
 
+select {
+	font-size: inherit;
+}
+
 textarea {
 	font-size: inherit;
 }
@@ -47,6 +54,7 @@ input[type="text"] {
 }
 
 .text-box {
+	margin-top: 0.2em;
 	border-style: solid;
 	padding: 0px 5px 5px;
 	border-width: thin;
@@ -63,20 +71,23 @@ input[type="text"] {
 
 #toggle.on {
 	background-color: yellow;
+	color: black;
 }
 
 #toggle.off {
 	background-color: gray;
-	font-weight: bold;
 	color: yellow;
+	font-weight: bold;
 	border-color: black;
 }
 
 span.error {
 	background-color: pink;
+	color: black;
 	font-weight: bold;
 }
 
 span.warning {
 	background-color: yellow;
+	color: black;
 }

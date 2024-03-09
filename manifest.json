@@ -1,7 +1,7 @@
 {
 	"manifest_version" : 2,
 	"name": "CSP for Me",
-	"version": "0.3.7",
+	"version": "0.3.8",
 	"author": "yobukodori",
 	"description": "Adds/Removes directive or directive-value to the existing CSP(content-security-policy) header in HTTP response.",
 

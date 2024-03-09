@@ -13,12 +13,19 @@
 				<img id="appIcon" src="icons/icon-48.png">
 				<span id="appName">(app name)</span><span id="appVer">(app version)</span>
 			</span>
-            <input type="checkbox" id="enableAtStartup">
-            <label for="enableAtStartup">Enable at startup</label>
-            <input type="checkbox" id="printDebugInfo">
-            <label for="printDebugInfo">Print debug info</label>
-            <input type="checkbox" id="noCache">
-            <label for="noCache">no-cache</label>
+            <input type="checkbox" id="enableAtStartup"><label
+				for="enableAtStartup">Enable at startup</label>
+            <input type="checkbox" id="printDebugInfo"><label
+				for="printDebugInfo">Print debug info</label>
+            <input type="checkbox" id="noCache"><label
+				for="noCache">no-cache</label>
+			&nbsp;
+			<label for="colorScheme">Theme:</label>
+			<select id="colorScheme">
+			<option value="auto">Auto</option>
+			<option value="light">Light</option>
+			<option value="dark">Dark</option>
+			</select>
         </div>
         <div class="text-box">
                 Applied URLs (Comma-Separated <a href="https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Match_patterns">URL patterns</a>)<br/>
@@ -36,6 +43,8 @@
 			| <button type="button" id="getStatus">Get Status</button>
 			<button type="button" id="toggle">Toggle On/Off</button>
 			<button type="button" id="clearLog">Clear Log</button>
+			| <button type="button" id="exportSettings">Export Settings</button>
+			<button type="button" id="importSettings">Import Settings</button>
 		</div>
 		<div id="log"><span>dummy for<br/><br/><br/><br/>android</span></div>
     </div>
